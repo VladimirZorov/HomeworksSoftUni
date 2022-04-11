@@ -1,41 +1,60 @@
 package Zadachi.RegularExpressionsMoreExercise;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class WinningTicket {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        List<String> tickets = Arrays.asList(input.split(",\\s+"));
-
-        for (int i = 0; i < tickets.size(); i++) {
-            if (tickets.get(i).length() == 20) {
-                    ticketWin(tickets,i);
-            } else {
+        String input = scanner.nextLine().replace(" ", "");
+        String[] tickets = input.split(",");
+        for (String ticket : tickets) {
+            if (ticket.length() < 20 || ticket.length() > 20) {
                 System.out.println("invalid ticket");
+            } else {
+                String firstHalfTicket = ticket.substring(0, 10);
+                String secondHalfTicket = ticket.substring(10);
+                int firstCounter = 1;
+                int secondCounter = 1;
+                String symbol = "";
+                for (int i = 1; i < firstHalfTicket.length(); i++) {
+                    if (firstHalfTicket.charAt(i - 1) == firstHalfTicket.charAt(i)
+                            && (firstHalfTicket.charAt(i - 1) == '@'
+                            || firstHalfTicket.charAt(i - 1) == '#'
+                            || firstHalfTicket.charAt(i - 1) == '$'
+                            || firstHalfTicket.charAt(i - 1) == '^')) {
+                        firstCounter++;
+                        symbol = String.valueOf(firstHalfTicket.charAt(i - 1));
+                    } else if (firstCounter < 6) {
+                        firstCounter = 1;
+                    }
+                }
+                for (int i = 1; i < secondHalfTicket.length(); i++) {
+                    if (secondHalfTicket.charAt(i - 1) == secondHalfTicket.charAt(i)
+                            && (secondHalfTicket.charAt(i - 1) == '@'
+                            || secondHalfTicket.charAt(i - 1) == '#'
+                            || secondHalfTicket.charAt(i - 1) == '$'
+                            || secondHalfTicket.charAt(i - 1) == '^')
+                            && symbol.equals(String.valueOf(secondHalfTicket.charAt(i - 1)))) {
+                        secondCounter++;
+                    } else if (secondCounter < 6) {
+                        secondCounter = 1;
+                    }
+                }
+                int counter = Math.min(firstCounter, secondCounter);
+                if (counter < 6) {
+                    System.out.println(String.format("ticket \"%s\" - no match", ticket));
+                } else if (counter != 10) {
+                    System.out.println(String.format("ticket \"%s\" - %d%s", ticket, counter, symbol));
+                } else {
+                    System.out.println(String.format("ticket \"%s\" - %d%s Jackpot!", ticket, counter, symbol));
+                }
             }
         }
-    }
-    static void ticketWin (List<String> tickets, int j) {
-        Pattern jackPat = Pattern.compile("[$|@|#|^]{10,}");
-        Matcher jackMatch = jackPat.matcher(tickets.get(j));
 
-        Pattern winPat = Pattern.compile("([$|@|#|^]{6})\\S*(\\1)");
-        Matcher winMatch = winPat.matcher(tickets.get(j));
-
-        if (jackMatch.find()) {
-            System.out.println("ticket " + tickets.get(j) + " - 6$ Jackpot!" );
-        } else if (winMatch.find()) {
-            System.out.println("ticket " + tickets.get(j) + " - {match length}{match symbol}");
-        } else  {
-            System.out.println("ticket " + tickets.get(j) + " - no match");
-        }
     }
 
 }
